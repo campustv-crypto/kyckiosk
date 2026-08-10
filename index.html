@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="zh-HK">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>kyckiosk — Remote 播片平台</title>
+  <style>
+    body{font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial;margin:0;padding:16px;background:#f7f7f7}
+    #player {width:100%;max-width:900px;margin:0 auto}
+    iframe{width:100%;height:500px;border:0;background:#000}
+    .playlist{max-width:900px;margin:12px auto;display:flex;flex-direction:column;gap:8px}
+    .item{display:flex;gap:8px;align-items:center;padding:8px;background:#fff;border-radius:6px;cursor:pointer}
+    .thumb{width:120px;height:68px;background:#ddd;flex-shrink:0;object-fit:cover}
+    .meta{flex:1}
+  </style>
+</head>
+<body>
+  <h1>kyckiosk — Remote 播片平台</h1>
+  <div id="player">
+    <iframe id="videoFrame" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+  </div>
+  <div class="playlist" id="playlist"></div>
+
+  <script>
+    // playlist.json 檔案會被 fetch，格式見範例
+    async function loadPlaylist(){
+      const res = await fetch('playlist.json', {cache: "no-store"});
+      if(!res.ok){ document.getElementById('playlist').innerText = '無法讀取 playlist.json'; return; }
+      const list = await res.json();
+      render(list);
+      if(list.length) play(list[0].id);
+    }
+
+    function drivePreviewUrl(fileId){
+      // 用 embed preview，前端不用 token（檔案須設為 Anyone with link can view）
+      return `https://drive.google.com/file/d/${fileId}/preview`;
+    }
+
+    function play(fileId){
+      document.getElementById('videoFrame').src = drivePreviewUrl(fileId);
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+
+    function render(list){
+      const root = document.getElementById('playlist');
+      root.innerHTML = '';
+      list.forEach(item=>{
+        const el = document.createElement('div'); el.className='item';
+        const thumb = document.createElement('img'); thumb.className='thumb';
+        // Google Drive 不一定有 thumbnail 直接用 preview screenshot 或 placeholder
+        thumb.src = item.thumbnail || `https://drive.google.com/thumbnail?id=${item.id}&sz=w320-h180`;
+        const meta = document.createElement('div'); meta.className='meta';
+        const title = document.createElement('div'); title.textContent = item.title || 'Untitled';
+        const desc = document.createElement('div'); desc.style.fontSize='12px'; desc.style.color='#666';
+        desc.textContent = item.description || '';
+        meta.appendChild(title); meta.appendChild(desc);
+        el.appendChild(thumb); el.appendChild(meta);
+        el.onclick = ()=> play(item.id);
+        root.appendChild(el);
+      });
+    }
+
+    loadPlaylist().catch(e=>{ console.error(e); document.getElementById('playlist').innerText='載入錯誤'; });
+  </script>
+</body>
+</html>
