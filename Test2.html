@@ -76,7 +76,10 @@
       clearTimeout(timerId);
       const currentVideo = videos[index];
       status.textContent = `Loading video ${index + 1}...`;
+      
+      // 確保傳遞 autoplay 與 mute 參數
       player.src = `${currentVideo.url}?autoplay=1&mute=1`;
+      
       index = (index + 1) % videos.length;
       timerId = setTimeout(playNext, parseDuration(currentVideo.duration) * 1000);
     }
@@ -85,7 +88,8 @@
       status.textContent = "Playing video";
     });
 
-    setTimeout(playNext, 800);
+    // 頁面載入後立即執行播放
+    playNext();
   </script>
 </body>
 </html>
