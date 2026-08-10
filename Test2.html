@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Drive Video Kiosk</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    iframe {
+      width: 100vw;
+      height: 100vh;
+      border: 0;
+      background: #000;
+    }
+
+    .status {
+      position: fixed;
+      top: 12px;
+      left: 12px;
+      color: white;
+      background: rgba(0,0,0,0.6);
+      padding: 8px 12px;
+      border-radius: 6px;
+      z-index: 10;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="status" id="status">Loading video…</div>
+  <iframe id="player" allow="autoplay; fullscreen"></iframe>
+
+  <script>
+    const videos = [
+      { url: "https://drive.google.com/file/d/1tvCXL6vcmfXtZ6qx8ZZ1jCASO9FwoEgQ/preview", duration: "0:47" },
+      { url: "https://drive.google.com/file/d/1dZzra6srbDEuZzGKrPBjDl0F29o7CS1L/preview", duration: "1:32" },
+      { url: "https://drive.google.com/file/d/1iSo40U9HOVnGmI2nEPz4pg0ZY77ES6n0/preview", duration: "6:10" },
+      { url: "https://drive.google.com/file/d/1ZsTihSFthbIqE8JQWGTV6X3wC8EsK5p4/preview", duration: "7:55" }
+    ];
+
+    const player = document.getElementById("player");
+    const status = document.getElementById("status");
+    let index = 0;
+    let timerId = null;
+
+    function parseDuration(value) {
+      if (typeof value === "number") return value;
+      if (typeof value !== "string") return 30;
+
+      const parts = value.split(":").map(Number);
+      if (parts.length === 2) {
+        return parts[0] * 60 + parts[1];
+      }
+      if (parts.length === 3) {
+        return parts[0] * 3600 + parts[1] * 60 + parts[2];
+      }
+      return 30;
+    }
+
+    function playNext() {
+      clearTimeout(timerId);
+      const currentVideo = videos[index];
+      status.textContent = `Loading video ${index + 1}...`;
+      player.src = `${currentVideo.url}?autoplay=1&mute=1`;
+      index = (index + 1) % videos.length;
+      timerId = setTimeout(playNext, parseDuration(currentVideo.duration) * 1000);
+    }
+
+    player.addEventListener("load", () => {
+      status.textContent = "Playing video";
+    });
+
+    setTimeout(playNext, 800);
+  </script>
+</body>
+</html>
