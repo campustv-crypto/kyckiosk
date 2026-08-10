@@ -1,0 +1,11 @@
+{
+  "name": "kyckiosk-sync",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "googleapis": "^140.0.0"
+  },
+  "scripts": {
+    "sync": "node scripts/update-playlist.js"
+  }
+}
