@@ -43,15 +43,54 @@
 </head>
 <body>
   <div class="status" id="status">Loading video…</div>
-  <iframe id="player" allow="autoplay; fullscreen"></iframe>
+  <!-- Added autoplay attribute to allow iframe autoplay privileges -->
+  <iframe id="player" allow="autoplay *; fullscreen"></iframe>
 
   <script>
-    const videos = [
-      { url: "https://drive.google.com/file/d/1tvCXL6vcmfXtZ6qx8ZZ1jCASO9FwoEgQ/preview", duration: "0:47" },
-      { url: "https://drive.google.com/file/d/1dZzra6srbDEuZzGKrPBjDl0F29o7CS1L/preview", duration: "1:32" },
-      { url: "https://drive.google.com/file/d/1iSo40U9HOVnGmI2nEPz4pg0ZY77ES6n0/preview", duration: "6:10" },
-      { url: "https://drive.google.com/file/d/1ZsTihSFthbIqE8JQWGTV6X3wC8EsK5p4/preview", duration: "7:55" }
-    ];
+    // Six playlists: Monday, Tuesday, Wednesday, Thursday, Friday, Weekends
+    const playlists = {
+      monday: [
+        { url: "https://drive.google.com/file/d/1tvCXL6vcmfXtZ6qx8ZZ1jCASO9FwoEgQ/preview", duration: "0:47" },
+        { url: "https://drive.google.com/file/d/1dZzra6srbDEuZzGKrPBjDl0F29o7CS1L/preview", duration: "1:32" }
+      ],
+      tuesday: [
+        { url: "https://drive.google.com/file/d/1iSo40U9HOVnGmI2nEPz4pg0ZY77ES6n0/preview", duration: "6:10" },
+        { url: "https://drive.google.com/file/d/1ZsTihSFthbIqE8JQWGTV6X3wC8EsK5p4/preview", duration: "7:55" }
+      ],
+      wednesday: [
+        { url: "https://drive.google.com/file/d/1tvCXL6vcmfXtZ6qx8ZZ1jCASO9FwoEgQ/preview", duration: "0:47" },
+        { url: "https://drive.google.com/file/d/1iSo40U9HOVnGmI2nEPz4pg0ZY77ES6n0/preview", duration: "6:10" }
+      ],
+      thursday: [
+        { url: "https://drive.google.com/file/d/1dZzra6srbDEuZzGKrPBjDl0F29o7CS1L/preview", duration: "1:32" },
+        { url: "https://drive.google.com/file/d/1ZsTihSFthbIqE8JQWGTV6X3wC8EsK5p4/preview", duration: "7:55" }
+      ],
+      friday: [
+        { url: "https://drive.google.com/file/d/1tvCXL6vcmfXtZ6qx8ZZ1jCASO9FwoEgQ/preview", duration: "0:47" },
+        { url: "https://drive.google.com/file/d/1dZzra6srbDEuZzGKrPBjDl0F29o7CS1L/preview", duration: "1:32" },
+        { url: "https://drive.google.com/file/d/1iSo40U9HOVnGmI2nEPz4pg0ZY77ES6n0/preview", duration: "6:10" }
+      ],
+      weekends: [
+        { url: "https://drive.google.com/file/d/1urdkvtIFHafZex-6MOs_sw2jEe3JSXci/preview", duration: "10:15" }
+      ]
+    };
+
+    // Choose today's playlist
+    function getTodayPlaylist(){
+      const d = new Date();
+      const day = d.getDay(); // 0 = Sunday, 1 = Monday, ... 6 = Saturday
+      if(day === 0 || day === 6) return playlists.weekends;
+      switch(day){
+        case 1: return playlists.monday;
+        case 2: return playlists.tuesday;
+        case 3: return playlists.wednesday;
+        case 4: return playlists.thursday;
+        case 5: return playlists.friday;
+        default: return playlists.weekends;
+      }
+    }
+
+    let videos = getTodayPlaylist();
 
     const player = document.getElementById("player");
     const status = document.getElementById("status");
@@ -77,8 +116,8 @@
       const currentVideo = videos[index];
       status.textContent = `Loading video ${index + 1}...`;
       
-      // 確保傳遞 autoplay 與 mute 參數
-      player.src = `${currentVideo.url}?autoplay=1&mute=1`;
+      // Appended autoplay=1 and mute=1 parameters directly to Google Drive preview links
+      player.src = `${currentVideo.url}?autoplay=1`;
       
       index = (index + 1) % videos.length;
       timerId = setTimeout(playNext, parseDuration(currentVideo.duration) * 1000);
@@ -88,7 +127,7 @@
       status.textContent = "Playing video";
     });
 
-    // 頁面載入後立即執行播放
+    // Initial trigger to load first video automatically
     playNext();
   </script>
 </body>
