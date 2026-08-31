@@ -120,7 +120,7 @@
       status.textContent = `Loading video ${index + 1}...`;
       
       // Appended autoplay=1 and mute=1 parameters directly to Google Drive preview links
-      player.src = `${currentVideo.url}?autoplay=1`;
+      player.src = `${currentVideo.url}?autoplay=1&mute=1`;
       
       index = (index + 1) % videos.length;
       timerId = setTimeout(playNext, parseDuration(currentVideo.duration) * 1000);
